@@ -1,6 +1,6 @@
 {
   "name": "com.jeomseon.unity.addressables",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "displayName": "Jeomseon Unity Addressables",
   "description": "Reference counting and instance lifecycle helpers for Unity Addressables.",
   "unity": "2022.3",
