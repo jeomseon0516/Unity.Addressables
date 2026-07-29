@@ -1,6 +1,6 @@
 {
   "name": "Jeomseon.Unity.Addressables",
-  "rootNamespace": "Jeomseon",
+  "rootNamespace": "Jeomseon.Prototype",
   "references": [
     "Jeomseon.Unity.Core",
     "Unity.Addressables",

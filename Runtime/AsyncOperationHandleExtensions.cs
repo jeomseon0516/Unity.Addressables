@@ -5,6 +5,8 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
+namespace Jeomseon.Prototype
+{
 internal static class AsyncOperationHandleExtensions
 {
     internal static void ReleaseErrorHandle<T>(this AsyncOperationHandle<T> handle) where T : class
@@ -81,4 +83,5 @@ internal static class AsyncOperationHandleExtensions
             handles.Remove(primaryKey);
         }
     }
+}
 }

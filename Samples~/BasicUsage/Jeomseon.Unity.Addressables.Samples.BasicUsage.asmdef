@@ -1,5 +1,6 @@
 {
   "name": "Jeomseon.Unity.Addressables.Samples.BasicUsage",
+  "rootNamespace": "Jeomseon.Samples.Addressables",
   "references": [
     "Jeomseon.Unity.Addressables"
   ]
