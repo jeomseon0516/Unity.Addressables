@@ -10,8 +10,13 @@
 
 ## [Unreleased]
 
-- TODO(api): Addressables.InstantiateAsync의 trackHandle 및 ReleaseInstance 수명 관리로 직접 대체 가능한 래퍼를 정리합니다.
-- 정적 이벤트와 전역 인스턴스의 Domain Reload 비활성화 호환성을 검토합니다.
+- Unity Addressables 최소 의존성을 2.9.1로 변경했습니다.
+- 정적 `PrototypeManager`와 수동 handle cache를 제거했습니다.
+- ScriptableObject Configuration, runtime Service와 MonoBehaviour Host를 추가했습니다.
+- 일반 에셋용 단일·복수 lease와 Prefab instance handle을 추가했습니다.
+- Unity 기본 Label·Callback·동기 wrapper와 `ClearResourceLocators` 갱신을 제거했습니다.
+- 외부 `Destroy` 시 Prefab operation을 한 번만 해제하는 선택 정책을 추가했습니다.
+- 활성 lease와 instance 수를 확인하는 최소 진단 API를 추가했습니다.
 
 ## [0.1.0] - 2026-07-29
 
