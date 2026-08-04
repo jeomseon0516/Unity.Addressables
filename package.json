@@ -1,12 +1,12 @@
 {
   "name": "com.jeomseon.unity.addressables",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "displayName": "Jeomseon Unity Addressables",
-  "description": "Reference counting and instance lifecycle helpers for Unity Addressables.",
-  "unity": "2022.3",
+  "description": "Configured asset leases and prefab instance lifetimes for Unity Addressables.",
+  "unity": "6000.3",
+  "unityRelease": "15f1",
   "dependencies": {
-    "com.jeomseon.unity.core": "0.1.0",
-    "com.unity.addressables": "1.21.21"
+    "com.unity.addressables": "2.9.1"
   },
   "author": {
     "name": "jeomseon0516",
