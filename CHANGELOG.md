@@ -17,6 +17,7 @@
 - Unity 기본 Label·Callback·동기 wrapper와 `ClearResourceLocators` 갱신을 제거했습니다.
 - 외부 `Destroy` 시 Prefab operation을 한 번만 해제하는 선택 정책을 추가했습니다.
 - 활성 lease와 instance 수를 확인하는 최소 진단 API를 추가했습니다.
+- Prefab 정상 해제, 외부 Destroy 및 일반 Asset lease를 검증하는 Basic Usage Scene을 추가했습니다.
 
 ## [0.1.0] - 2026-07-29
 

@@ -55,3 +55,9 @@ Enemy enemy = handle.GetComponent<Enemy>();
 사용합니다. 이 패키지는 해당 API를 다시 구현하지 않고 Configuration, Service 소유권,
 lease와 외부 Destroy 안전성만 제공합니다. GameObjectPooling과의 통합은 이 패키지에
 포함하지 않습니다.
+
+## Basic Usage 샘플
+
+Package Manager에서 샘플을 Import한 뒤 `Tool/Addressables/Setup Basic Usage Sample`을
+실행하고 `Scenes/AddressablesBasicUsage` Scene을 엽니다. Scene UI에서 Prefab 정상 해제,
+외부 Destroy 자동 해제, TextAsset lease와 활성 Resource 수를 직접 확인할 수 있습니다.
