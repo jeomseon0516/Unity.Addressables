@@ -19,3 +19,8 @@ The package delegates loading, instantiation, labels, reference counting, catalo
 bundle caching to Unity's official APIs. Its added responsibilities are configuration, scoped
 service ownership, leases, and optional protection against externally destroyed instances.
 GameObject Pooling integration is intentionally outside this package.
+
+The `Basic Usage` sample includes a playable scene. After importing it, run
+`Tool/Addressables/Setup Basic Usage Sample`, open `Scenes/AddressablesBasicUsage`, and use the
+in-game controls to verify explicit release, external-destroy protection, a TextAsset lease,
+and the active-resource count.

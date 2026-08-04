@@ -1,0 +1,13 @@
+{
+  "name": "Jeomseon.Unity.Addressables.Samples.BasicUsage.Editor",
+  "rootNamespace": "Jeomseon.Samples.Addressables.Editor",
+  "references": [
+    "Jeomseon.Unity.Addressables.Samples.BasicUsage",
+    "Unity.Addressables.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}
