@@ -19,7 +19,7 @@ jobs:
         run: |
           jq empty package.json
           test "$(jq -r '.name' package.json)" = "com.jeomseon.unity.addressables"
-          test "$(jq -r '.unity' package.json)" = "6000.3"
+          test "$(jq -r '.unity' package.json)" = "6000.5"
           test "$(jq -r '.dependencies["com.unity.addressables"]' package.json)" = "2.9.1"
           test "$(jq -r '.dependencies["com.jeomseon.unity.core"]' package.json)" = "null"
           test -f README.md
