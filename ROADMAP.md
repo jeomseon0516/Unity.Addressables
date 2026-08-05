@@ -18,7 +18,7 @@
 6. **P2-01 — 공식 API 중복 제거**
    - 공식 로드 구현을 감싸는 중복 Callback 및 동기 wrapper를 제거했습니다.
    - 동적 Key와 직렬화 `AssetReference` 입력은 동일한 Service 소유권 모델로 통합했습니다.
-   - Unity 6000.3 기준 Addressables 의존성을 2.9.1로 갱신했습니다.
+   - Unity 6000.5 기준 Addressables 의존성을 2.9.1로 갱신했습니다.
 7. **P2-02 — 진단과 관찰 가능성**
    - 활성 lease·instance 수와 해제되지 않은 소유권을 Inspector에서 확인합니다.
    - Resource 종류, Key, 타입, 생성 시각과 선택적 StackTrace를 제공합니다.
