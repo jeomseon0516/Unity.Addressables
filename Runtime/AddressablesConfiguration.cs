@@ -15,6 +15,8 @@ namespace Jeomseon.Addressables
             AddressableInstanceReleasePolicy.ReleaseOnDestroy;
         [SerializeField] private bool _updateCatalogOnInitialize;
         [SerializeField] private bool _cleanBundleCacheAfterCatalogUpdate = true;
+        [SerializeField] private bool _logOutstandingResourcesOnDispose = true;
+        [SerializeField] private bool _captureAllocationStackTrace;
 
         /// <summary>
         /// Gets the prefab instance release policy.
@@ -35,5 +37,18 @@ namespace Jeomseon.Addressables
         /// </summary>
         public bool CleanBundleCacheAfterCatalogUpdate =>
             _cleanBundleCacheAfterCatalogUpdate;
+
+        /// <summary>
+        /// Gets whether disposal logs resources that their callers did not release first.
+        /// Dispose 전에 호출부가 해제하지 않은 Resource를 기록할지 가져옵니다.
+        /// </summary>
+        public bool LogOutstandingResourcesOnDispose =>
+            _logOutstandingResourcesOnDispose;
+
+        /// <summary>
+        /// Gets whether resource diagnostics capture allocation stack traces.
+        /// Resource 진단에서 할당 StackTrace를 기록할지 가져옵니다.
+        /// </summary>
+        public bool CaptureAllocationStackTrace => _captureAllocationStackTrace;
     }
 }

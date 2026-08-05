@@ -17,6 +17,7 @@ namespace Jeomseon.Samples.Addressables.Editor
         private const string GroupName = "Jeomseon Addressables Basic Usage";
         private const string PrefabKey = "jeomseon-addressables-sample-prefab";
         private const string MessageKey = "jeomseon-addressables-sample-message";
+        private const string SampleLabel = "jeomseon-addressables-sample";
 
         [MenuItem("Tool/Addressables/Setup Basic Usage Sample")]
         private static void Setup()
@@ -62,6 +63,8 @@ namespace Jeomseon.Samples.Addressables.Editor
 
             AddressableAssetEntry entry = settings.CreateOrMoveEntry(guid, group);
             entry.address = address;
+            settings.AddLabel(SampleLabel);
+            entry.SetLabel(SampleLabel, true, true);
         }
     }
 }

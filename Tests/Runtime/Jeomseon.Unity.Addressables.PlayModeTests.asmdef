@@ -2,7 +2,8 @@
   "name": "Jeomseon.Unity.Addressables.PlayModeTests",
   "rootNamespace": "Jeomseon.Tests",
   "references": [
-    "Jeomseon.Unity.Addressables"
+    "Jeomseon.Unity.Addressables",
+    "Unity.Addressables"
   ],
   "optionalUnityReferences": [
     "TestAssemblies"
