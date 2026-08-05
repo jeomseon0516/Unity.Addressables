@@ -35,7 +35,7 @@ jobs:
               echo "::error file=${asset}::Missing Unity meta file: ${asset}.meta"
               exit 1
             fi
-          done < <(find Runtime Tests Samples~ -mindepth 1 ! -name '*.meta' -print)
+          done < <(find Runtime Editor Tests Samples~ -mindepth 1 ! -name '*.meta' -print)
       - name: Validate release tag
         if: startsWith(github.ref, 'refs/tags/v')
         run: test "$(jq -r '.version' package.json)" = "${GITHUB_REF_NAME#v}"

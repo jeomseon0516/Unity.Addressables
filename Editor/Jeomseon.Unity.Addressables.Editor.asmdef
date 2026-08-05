@@ -1,0 +1,12 @@
+{
+  "name": "Jeomseon.Unity.Addressables.Editor",
+  "rootNamespace": "Jeomseon.Addressables",
+  "references": [
+    "Jeomseon.Unity.Addressables"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "autoReferenced": true,
+  "noEngineReferences": false
+}

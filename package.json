@@ -1,6 +1,6 @@
 {
   "name": "com.jeomseon.unity.addressables",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "displayName": "Jeomseon Unity Addressables",
   "description": "Configured asset leases and prefab instance lifetimes for Unity Addressables.",
   "unity": "6000.3",
@@ -25,7 +25,7 @@
   "samples": [
     {
       "displayName": "Basic Usage",
-      "description": "패키지 핵심 API를 확인하는 최소 사용 예제입니다.",
+      "description": "직렬화 Reference, Provider, 진단과 수명 관리를 확인하는 사용 예제입니다.",
       "path": "Samples~/BasicUsage"
     }
   ]

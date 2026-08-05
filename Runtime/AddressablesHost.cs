@@ -21,6 +21,22 @@ namespace Jeomseon.Addressables
         /// </summary>
         public IAddressablesService Service => _service ??= new AddressablesService(_configuration);
 
+        /// <summary>
+        /// Gets whether this Host has created its runtime Service.
+        /// 이 Host가 Runtime Service를 생성했는지 가져옵니다.
+        /// </summary>
+        public bool HasCreatedService => _service != null;
+
+        /// <summary>
+        /// Gets the existing Service without creating it.
+        /// Service를 새로 생성하지 않고 기존 Service를 가져옵니다.
+        /// </summary>
+        public bool TryGetCreatedService(out IAddressablesService service)
+        {
+            service = _service;
+            return service != null;
+        }
+
         private void Awake()
         {
             if (!_dontDestroyOnLoad || !Application.isPlaying) return;

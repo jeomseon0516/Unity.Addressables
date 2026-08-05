@@ -16,13 +16,24 @@
    - Unity `InstantiateAsync`와 `ReleaseInstance`를 사용합니다.
    - 외부 `Destroy` 자동 해제를 선택 정책으로 제공합니다.
 6. **P2-01 — 공식 API 중복 제거**
-   - Label, AssetReference, Callback 및 동기 wrapper를 제거했습니다.
+   - 공식 로드 구현을 감싸는 중복 Callback 및 동기 wrapper를 제거했습니다.
+   - 동적 Key와 직렬화 `AssetReference` 입력은 동일한 Service 소유권 모델로 통합했습니다.
    - Unity 6000.3 기준 Addressables 의존성을 2.9.1로 갱신했습니다.
-
-## 다음 작업
-
-1. **P2-02 — 진단과 관찰 가능성**
+7. **P2-02 — 진단과 관찰 가능성**
    - 활성 lease·instance 수와 해제되지 않은 소유권을 Inspector에서 확인합니다.
-2. **P3-01 — 프로젝트 전체 리팩터링 이후 통합 패키지 검토**
-   - Addressables와 GameObjectPooling 핵심 패키지는 서로를 참조하지 않습니다.
-   - 모든 패키지 계약이 안정된 뒤 별도 통합 패키지를 검토합니다.
+   - Resource 종류, Key, 타입, 생성 시각과 선택적 StackTrace를 제공합니다.
+   - Service 종료 시 호출부가 먼저 해제하지 않은 Resource를 진단할 수 있습니다.
+8. **P2-03 — 직렬화 Reference와 Provider 샘플**
+   - 타입 제한 AssetReference, ScriptableObject Asset Configuration과 다중 Instance Provider를 제공합니다.
+9. **P2-04 — API·취소·Catalog 검증**
+   - 실제 에셋 로드, Prefab 생성·외부 Destroy, 취소와 Catalog 초기화 경로를 PlayMode에서 검증합니다.
+
+## 추후 검토
+
+구체적인 프로젝트 요구가 생길 때 다음 기능을 현재 Lease 소유권 모델에 맞춰 검토합니다.
+
+- Scene Lease 기반 Addressable Scene 로드
+- 다운로드 크기 조회와 의존성 선다운로드
+- 명시적인 Runtime Catalog 갱신
+- 진행률 보고와 Timeout 정책
+- 전역 Cache를 만들지 않는 Resource Location 조회

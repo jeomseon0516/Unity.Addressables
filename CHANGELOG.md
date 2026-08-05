@@ -10,6 +10,8 @@
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-08-05
+
 - Unity Addressables 최소 의존성을 2.9.1로 변경했습니다.
 - 정적 `PrototypeManager`와 수동 handle cache를 제거했습니다.
 - ScriptableObject Configuration, runtime Service와 MonoBehaviour Host를 추가했습니다.
@@ -18,6 +20,13 @@
 - 외부 `Destroy` 시 Prefab operation을 한 번만 해제하는 선택 정책을 추가했습니다.
 - 활성 lease와 instance 수를 확인하는 최소 진단 API를 추가했습니다.
 - Prefab 정상 해제, 외부 Destroy 및 일반 Asset lease를 검증하는 Basic Usage Scene을 추가했습니다.
+- 타입 제한 AssetReference와 AssetLabelReference 입력 API를 추가했습니다.
+- 활성 Resource의 종류, Key, 타입, 생성 시각과 선택적 할당 StackTrace 진단을 추가했습니다.
+- AddressablesHost Play Mode Inspector와 영속 Root 구성 경고를 추가했습니다.
+- Service 종료 시 호출부가 해제하지 않은 Resource 경고 정책을 추가했습니다.
+- ScriptableObject Asset Configuration과 다중 Prefab Provider 샘플을 추가했습니다.
+- 실제 로드·생성·외부 Destroy·취소·Catalog 초기화 PlayMode 테스트를 확장했습니다.
+- 향후 Scene Lease, 선다운로드, 진행률 및 Runtime Catalog API는 TODO로 명시했습니다.
 
 ## [0.1.0] - 2026-07-29
 

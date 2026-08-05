@@ -20,7 +20,9 @@ namespace Jeomseon.Addressables
         private readonly AddressableInstanceReleasePolicy _instanceReleasePolicy;
         private readonly bool _updateCatalogOnInitialize;
         private readonly bool _cleanBundleCacheAfterCatalogUpdate;
-        private readonly HashSet<IDisposable> _resources = new();
+        private readonly Dictionary<IDisposable, AddressableResourceInfo> _resources = new();
+        private readonly bool _logOutstandingResourcesOnDispose;
+        private readonly bool _captureAllocationStackTrace;
         private Task _initializationTask;
         private bool _initialized;
         private bool _disposed;
@@ -30,6 +32,17 @@ namespace Jeomseon.Addressables
 
         /// <inheritdoc />
         public int ActiveResourceCount => _resources.Count;
+
+        /// <inheritdoc />
+        public IReadOnlyList<AddressableResourceInfo> ActiveResources
+        {
+            get
+            {
+                var snapshot = new AddressableResourceInfo[_resources.Count];
+                _resources.Values.CopyTo(snapshot, 0);
+                return snapshot;
+            }
+        }
 
         /// <summary>
         /// Creates a runtime service from optional serialized policy.
@@ -44,6 +57,10 @@ namespace Jeomseon.Addressables
                 configuration.UpdateCatalogOnInitialize;
             _cleanBundleCacheAfterCatalogUpdate = configuration == null ||
                 configuration.CleanBundleCacheAfterCatalogUpdate;
+            _logOutstandingResourcesOnDispose = configuration == null ||
+                configuration.LogOutstandingResourcesOnDispose;
+            _captureAllocationStackTrace = configuration != null &&
+                configuration.CaptureAllocationStackTrace;
         }
 
         /// <inheritdoc />
@@ -84,7 +101,11 @@ namespace Jeomseon.Addressables
                 cancellationToken.ThrowIfCancellationRequested();
                 EnsureSucceeded(handle, key);
                 var lease = new AddressableAssetCollectionLease<T>(handle, RemoveResource);
-                _resources.Add(lease);
+                TrackResource(
+                    lease,
+                    AddressableResourceKind.AssetCollection,
+                    key,
+                    typeof(T));
                 return lease;
             }
             catch
@@ -92,6 +113,20 @@ namespace Jeomseon.Addressables
                 if (handle.IsValid()) AddressablesApi.Release(handle);
                 throw;
             }
+        }
+
+        /// <inheritdoc />
+        public Awaitable<AddressableAssetCollectionLease<T>> LoadLabelAssetsAsync<T>(
+            AssetLabelReference label,
+            bool releaseDependenciesOnFailure = true,
+            CancellationToken cancellationToken = default)
+            where T : UnityEngine.Object
+        {
+            ValidateReference(label, nameof(label));
+            return LoadAssetsAsync<T>(
+                label.RuntimeKey,
+                releaseDependenciesOnFailure,
+                cancellationToken);
         }
 
         /// <inheritdoc />
@@ -109,7 +144,7 @@ namespace Jeomseon.Addressables
                 cancellationToken.ThrowIfCancellationRequested();
                 EnsureSucceeded(handle, key);
                 var lease = new AddressableAssetLease<T>(handle, RemoveResource);
-                _resources.Add(lease);
+                TrackResource(lease, AddressableResourceKind.Asset, key, typeof(T));
                 return lease;
             }
             catch
@@ -117,6 +152,16 @@ namespace Jeomseon.Addressables
                 if (handle.IsValid()) AddressablesApi.Release(handle);
                 throw;
             }
+        }
+
+        /// <inheritdoc />
+        public Awaitable<AddressableAssetLease<T>> LoadAssetReferenceAsync<T>(
+            AssetReferenceT<T> reference,
+            CancellationToken cancellationToken = default)
+            where T : UnityEngine.Object
+        {
+            ValidateReference(reference, nameof(reference));
+            return LoadAssetAsync<T>(reference.RuntimeKey, cancellationToken);
         }
 
         /// <inheritdoc />
@@ -139,7 +184,7 @@ namespace Jeomseon.Addressables
                     handle,
                     _instanceReleasePolicy,
                     RemoveResource);
-                _resources.Add(instance);
+                TrackResource(instance, AddressableResourceKind.Instance, key, typeof(GameObject));
                 return instance;
             }
             catch
@@ -147,6 +192,16 @@ namespace Jeomseon.Addressables
                 if (handle.IsValid()) AddressablesApi.ReleaseInstance(handle);
                 throw;
             }
+        }
+
+        /// <inheritdoc />
+        public Awaitable<AddressableInstanceHandle> InstantiateReferenceAsync(
+            AssetReferenceGameObject reference,
+            Transform parent = null,
+            CancellationToken cancellationToken = default)
+        {
+            ValidateReference(reference, nameof(reference));
+            return InstantiateAsync(reference.RuntimeKey, parent, cancellationToken);
         }
 
         /// <summary>
@@ -157,8 +212,9 @@ namespace Jeomseon.Addressables
         {
             if (_disposed) return;
             _disposed = true;
+            LogOutstandingResources();
             IDisposable[] resources = new IDisposable[_resources.Count];
-            _resources.CopyTo(resources);
+            _resources.Keys.CopyTo(resources, 0);
             foreach (IDisposable resource in resources) resource.Dispose();
             _resources.Clear();
         }
@@ -211,6 +267,42 @@ namespace Jeomseon.Addressables
 
         private void RemoveResource(IDisposable resource) => _resources.Remove(resource);
 
+        private void TrackResource(
+            IDisposable resource,
+            AddressableResourceKind kind,
+            object key,
+            Type resourceType)
+        {
+            _resources.Add(
+                resource,
+                new AddressableResourceInfo(
+                    kind,
+                    key,
+                    resourceType,
+                    _captureAllocationStackTrace));
+        }
+
+        private void LogOutstandingResources()
+        {
+            if (!_logOutstandingResourcesOnDispose || _resources.Count == 0) return;
+
+            Debug.LogWarning(
+                $"[{nameof(AddressablesService)}] Disposing with {_resources.Count} " +
+                "outstanding resource(s). Their owners should normally dispose them first. / " +
+                $"해제되지 않은 Resource {_resources.Count}개를 Service가 정리합니다. " +
+                "일반적으로 각 소유자가 먼저 Dispose해야 합니다.");
+
+            foreach (AddressableResourceInfo info in _resources.Values)
+            {
+                string stack = string.IsNullOrEmpty(info.AllocationStackTrace)
+                    ? string.Empty
+                    : $"\n{info.AllocationStackTrace}";
+                Debug.LogWarning(
+                    $"- {info.Kind}: {info.Key} ({info.ResourceType.FullName}), " +
+                    $"created {info.CreatedAtUtc:O}{stack}");
+            }
+        }
+
         private void ThrowIfDisposed()
         {
             if (_disposed) throw new ObjectDisposedException(nameof(AddressablesService));
@@ -223,6 +315,19 @@ namespace Jeomseon.Addressables
                 throw new ArgumentException(
                     "An Addressables key is required. / Addressables Key가 필요합니다.",
                     nameof(key));
+            }
+        }
+
+        private static void ValidateReference(
+            IKeyEvaluator reference,
+            string parameterName)
+        {
+            if (reference == null || !reference.RuntimeKeyIsValid())
+            {
+                throw new ArgumentException(
+                    "A valid serialized Addressables reference is required. / " +
+                    "유효한 직렬화 Addressables Reference가 필요합니다.",
+                    parameterName);
             }
         }
 
