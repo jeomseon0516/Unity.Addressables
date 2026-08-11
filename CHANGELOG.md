@@ -1,5 +1,14 @@
 # 변경 기록
 
+## [Unreleased]
+
+## [0.2.4] - 2026-08-11
+
+- 워크스페이스 명명 규칙에 맞춰 `[SerializeField] private` 필드를 `_camelCase`에서 `camelCase`로
+  정리하고 기존 이름을 `[FormerlySerializedAs]`로 보존했습니다. `AddressablesHostEditor`의
+  `FindProperty` 문자열도 함께 갱신했습니다. 공개 C# API 변경은 없으며 기존 Scene·Prefab의
+  직렬화된 값은 그대로 유지됩니다.
+
 ## [0.1.2] - 2026-07-29
 
 - asmdef의 `rootNamespace`와 소스 파일 위치를 공개 namespace에 맞게 정리했습니다.
