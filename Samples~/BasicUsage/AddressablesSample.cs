@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Jeomseon.Addressables;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Jeomseon.Samples.Addressables
 {
@@ -11,8 +12,8 @@ namespace Jeomseon.Samples.Addressables
     /// </summary>
     public sealed class AddressablesSample : MonoBehaviour
     {
-        [SerializeField] private AddressablesHost _host;
-        [SerializeField] private AddressablesSampleAssets _assets;
+        [SerializeField, FormerlySerializedAs("_host")] private AddressablesHost host;
+        [SerializeField, FormerlySerializedAs("_assets")] private AddressablesSampleAssets assets;
         private IAddressablesSampleContentProvider _provider;
         private readonly List<GameObject> _instances = new();
         private TextAsset _message;
@@ -52,14 +53,14 @@ namespace Jeomseon.Samples.Addressables
             GUILayout.EndArea();
         }
 
-        private int ActiveResourceCount => _host?.Service.ActiveResourceCount ?? 0;
+        private int ActiveResourceCount => host?.Service.ActiveResourceCount ?? 0;
 
         private IAddressablesSampleContentProvider Provider =>
-            _provider ??= new AddressablesSampleContentProvider(_host.Service, _assets);
+            _provider ??= new AddressablesSampleContentProvider(host.Service, assets);
 
         private async void InstantiatePrefab()
         {
-            if (_host == null) return;
+            if (host == null) return;
             try
             {
                 GameObject instance = await Provider.InstantiateActorAsync(
@@ -109,7 +110,7 @@ namespace Jeomseon.Samples.Addressables
 
         private async void LoadMessage()
         {
-            if (_host == null) return;
+            if (host == null) return;
             ReleaseMessage();
             try
             {

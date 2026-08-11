@@ -23,7 +23,7 @@ namespace Jeomseon.Addressables.Diagnostics
 
         private void DrawConfigurationWarnings()
         {
-            SerializedProperty persistent = serializedObject.FindProperty("_dontDestroyOnLoad");
+            SerializedProperty persistent = serializedObject.FindProperty("dontDestroyOnLoad");
             var host = (AddressablesHost)target;
             if (persistent.boolValue && host.transform.parent != null)
             {
