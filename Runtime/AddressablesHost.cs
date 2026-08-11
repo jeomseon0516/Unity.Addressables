@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 namespace Jeomseon.Addressables
 {
@@ -10,16 +11,16 @@ namespace Jeomseon.Addressables
     [DisallowMultipleComponent]
     public sealed class AddressablesHost : MonoBehaviour
     {
-        [SerializeField] private AddressablesConfiguration _configuration;
-        [SerializeField] private bool _initializeOnStart = true;
-        [SerializeField] private bool _dontDestroyOnLoad;
+        [SerializeField, FormerlySerializedAs("_configuration")] private AddressablesConfiguration configuration;
+        [SerializeField, FormerlySerializedAs("_initializeOnStart")] private bool initializeOnStart = true;
+        [SerializeField, FormerlySerializedAs("_dontDestroyOnLoad")] private bool dontDestroyOnLoad;
         private AddressablesService _service;
 
         /// <summary>
         /// Gets the owned service, creating it lazily when required.
         /// 소유 Service를 가져오며 필요한 경우 지연 생성합니다.
         /// </summary>
-        public IAddressablesService Service => _service ??= new AddressablesService(_configuration);
+        public IAddressablesService Service => _service ??= new AddressablesService(configuration);
 
         /// <summary>
         /// Gets whether this Host has created its runtime Service.
@@ -39,7 +40,7 @@ namespace Jeomseon.Addressables
 
         private void Awake()
         {
-            if (!_dontDestroyOnLoad || !Application.isPlaying) return;
+            if (!dontDestroyOnLoad || !Application.isPlaying) return;
             if (transform.parent != null)
             {
                 throw new InvalidOperationException(
@@ -52,7 +53,7 @@ namespace Jeomseon.Addressables
 
         private async void Start()
         {
-            if (!_initializeOnStart) return;
+            if (!initializeOnStart) return;
             try
             {
                 await Service.InitializeAsync(destroyCancellationToken);

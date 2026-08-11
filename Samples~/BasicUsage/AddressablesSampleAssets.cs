@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.AddressableAssets;
+using UnityEngine.Serialization;
 
 namespace Jeomseon.Samples.Addressables
 {
@@ -12,13 +13,13 @@ namespace Jeomseon.Samples.Addressables
         menuName = "Tool/Addressables/Samples/Basic Usage Assets")]
     public sealed class AddressablesSampleAssets : ScriptableObject
     {
-        [SerializeField] private AssetReferenceGameObject _prefab;
-        [SerializeField] private TextAssetReference _message;
+        [SerializeField, FormerlySerializedAs("_prefab")] private AssetReferenceGameObject prefab;
+        [SerializeField, FormerlySerializedAs("_message")] private TextAssetReference message;
 
         /// <summary>Gets the sample prefab reference. Sample Prefab Reference를 가져옵니다.</summary>
-        public AssetReferenceGameObject Prefab => _prefab;
+        public AssetReferenceGameObject Prefab => prefab;
 
         /// <summary>Gets the sample message reference. Sample Message Reference를 가져옵니다.</summary>
-        public TextAssetReference Message => _message;
+        public TextAssetReference Message => message;
     }
 }
