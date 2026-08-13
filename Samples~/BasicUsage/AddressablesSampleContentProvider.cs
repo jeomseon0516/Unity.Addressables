@@ -2,7 +2,7 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using Jeomseon.Addressables;
+using Jeomseon.Unity.Addressables;
 using UnityEngine;
 
 namespace Jeomseon.Samples.Addressables

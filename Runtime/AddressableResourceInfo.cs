@@ -1,6 +1,6 @@
 using System;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Describes one resource currently owned by an Addressables service.

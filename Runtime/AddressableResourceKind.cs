@@ -1,4 +1,4 @@
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Identifies the ownership category of an active Addressables resource.

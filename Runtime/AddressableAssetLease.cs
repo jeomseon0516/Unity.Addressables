@@ -2,7 +2,7 @@ using System;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using AddressablesApi = UnityEngine.AddressableAssets.Addressables;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Owns one loaded Addressable asset operation until explicitly disposed.

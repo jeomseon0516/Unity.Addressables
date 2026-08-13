@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using AddressablesApi = UnityEngine.AddressableAssets.Addressables;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Owns one Addressables operation that loaded a collection of assets.

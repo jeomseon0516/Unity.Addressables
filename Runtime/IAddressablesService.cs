@@ -4,7 +4,7 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Provides owned Addressable asset and prefab operations without exposing global caches.

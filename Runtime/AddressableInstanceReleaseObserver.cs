@@ -1,7 +1,7 @@
 using System;
 using UnityEngine;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Reports external instance destruction to its owning handle.

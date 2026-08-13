@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 
-namespace Jeomseon.Addressables.Diagnostics
+namespace Jeomseon.Unity.Addressables.Editor.Diagnostics
 {
     /// <summary>
     /// Displays configuration validation and active resource ownership for AddressablesHost.
