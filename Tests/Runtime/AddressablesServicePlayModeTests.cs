@@ -19,7 +19,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 await service.InitializeAsync();
                 await service.InitializeAsync();
             }
@@ -32,7 +32,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 try
                 {
                     await service.LoadAssetAsync<Material>(null);
@@ -51,7 +51,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var reference = new AssetReferenceT<Material>(string.Empty);
                 try
                 {
@@ -71,7 +71,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var label = new AssetLabelReference();
                 try
                 {
@@ -91,7 +91,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var reference = new AssetReferenceGameObject(string.Empty);
                 try
                 {
@@ -111,7 +111,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                var service = new Jeomseon.Addressables.AddressablesService();
+                var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 service.Dispose();
                 try
                 {
@@ -131,14 +131,14 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var lease = await service.LoadAssetAsync<TextAsset>(MessageKey);
 
                 Assert.That(lease.IsValid, Is.True);
                 Assert.That(lease.Asset, Is.Not.Null);
                 Assert.That(service.ActiveResourceCount, Is.EqualTo(1));
                 Assert.That(service.ActiveResources.Single().Kind,
-                    Is.EqualTo(Jeomseon.Addressables.AddressableResourceKind.Asset));
+                    Is.EqualTo(Jeomseon.Unity.Addressables.AddressableResourceKind.Asset));
                 Assert.That(service.ActiveResources.Single().Key, Is.EqualTo(MessageKey));
 
                 lease.Dispose();
@@ -156,12 +156,12 @@ namespace Jeomseon.Tests
             async Awaitable TestImplementation()
             {
                 var configuration = ScriptableObject.CreateInstance<
-                    Jeomseon.Addressables.AddressablesConfiguration>();
+                    Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
                     "{\"_captureAllocationStackTrace\":true," +
                     "\"_logOutstandingResourcesOnDispose\":false}",
                     configuration);
-                using var service = new Jeomseon.Addressables.AddressablesService(configuration);
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
                 using var lease = await service.LoadAssetAsync<TextAsset>(MessageKey);
 
                 Assert.That(
@@ -178,12 +178,12 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var lease = await service.LoadAssetsAsync<TextAsset>(MessageKey);
 
                 Assert.That(lease.Assets, Has.Count.EqualTo(1));
                 Assert.That(service.ActiveResources.Single().Kind,
-                    Is.EqualTo(Jeomseon.Addressables.AddressableResourceKind.AssetCollection));
+                    Is.EqualTo(Jeomseon.Unity.Addressables.AddressableResourceKind.AssetCollection));
 
                 lease.Dispose();
                 Assert.That(service.ActiveResourceCount, Is.Zero);
@@ -197,7 +197,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 var handle = await service.InstantiateAsync(PrefabKey);
                 Assert.That(service.ActiveResourceCount, Is.EqualTo(1));
 
@@ -217,11 +217,11 @@ namespace Jeomseon.Tests
             async Awaitable TestImplementation()
             {
                 var configuration = ScriptableObject.CreateInstance<
-                    Jeomseon.Addressables.AddressablesConfiguration>();
+                    Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
                     "{\"_logOutstandingResourcesOnDispose\":false}",
                     configuration);
-                var service = new Jeomseon.Addressables.AddressablesService(configuration);
+                var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
                 var lease = await service.LoadAssetAsync<TextAsset>(MessageKey);
 
                 service.Dispose();
@@ -239,7 +239,7 @@ namespace Jeomseon.Tests
         {
             async Awaitable TestImplementation()
             {
-                using var service = new Jeomseon.Addressables.AddressablesService();
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
                 using var cancellation = new CancellationTokenSource();
                 cancellation.Cancel();
 
@@ -264,12 +264,12 @@ namespace Jeomseon.Tests
             async Awaitable TestImplementation()
             {
                 var configuration = ScriptableObject.CreateInstance<
-                    Jeomseon.Addressables.AddressablesConfiguration>();
+                    Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
                     "{\"_updateCatalogOnInitialize\":true," +
                     "\"_cleanBundleCacheAfterCatalogUpdate\":true}",
                     configuration);
-                using var service = new Jeomseon.Addressables.AddressablesService(configuration);
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
 
                 await service.InitializeAsync();
                 await service.InitializeAsync();

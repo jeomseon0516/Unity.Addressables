@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Jeomseon.Addressables;
+using Jeomseon.Unity.Addressables;
 using UnityEngine;
 using UnityEngine.Serialization;
 

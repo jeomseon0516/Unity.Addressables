@@ -1,4 +1,4 @@
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Selects how an Addressable prefab instance releases its operation handle.
