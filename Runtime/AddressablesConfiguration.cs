@@ -1,7 +1,7 @@
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Stores serialized Addressables orchestration policy without owning runtime handles.

@@ -1,6 +1,6 @@
 {
   "name": "com.jeomseon.unity.addressables",
-  "version": "0.2.4",
+  "version": "0.3.0",
   "displayName": "Jeomseon Unity Addressables",
   "description": "Configured asset leases and prefab instance lifetimes for Unity Addressables.",
   "unity": "6000.5",

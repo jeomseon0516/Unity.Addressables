@@ -9,7 +9,7 @@ using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceProviders;
 using AddressablesApi = UnityEngine.AddressableAssets.Addressables;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Owns runtime Addressables leases and instances for one composition scope.

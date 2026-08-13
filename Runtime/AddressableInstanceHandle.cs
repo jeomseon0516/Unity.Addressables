@@ -3,7 +3,7 @@ using UnityEngine;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using AddressablesApi = UnityEngine.AddressableAssets.Addressables;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Owns one Addressable prefab instance and its operation handle.

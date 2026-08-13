@@ -2,7 +2,7 @@ using System;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-namespace Jeomseon.Addressables
+namespace Jeomseon.Unity.Addressables
 {
     /// <summary>
     /// Creates and owns an Addressables service from serialized configuration.

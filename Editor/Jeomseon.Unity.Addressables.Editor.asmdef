@@ -1,6 +1,6 @@
 {
   "name": "Jeomseon.Unity.Addressables.Editor",
-  "rootNamespace": "Jeomseon.Addressables",
+  "rootNamespace": "Jeomseon.Unity.Addressables",
   "references": [
     "Jeomseon.Unity.Addressables"
   ],
