@@ -1,5 +1,14 @@
 # 변경 기록
 
+## [Unreleased]
+
+- `Basic Usage` 샘플의 `AddressablesSampleSetup` 메뉴 경로를 `AGENTS.md` 규칙(루트 `Jeomseon/`)에
+  맞춰 `Tool/Addressables/Setup Basic Usage Sample` → `Jeomseon/Addressables/Setup Basic Usage
+  Sample`로 수정했습니다. 이 Setup 메뉴는 Import된 Prefab/TextAsset을 **소비 프로젝트 자신의**
+  `AddressableAssetSettings`에 등록하는 단계라(프로젝트마다 로컬 GUID가 달라 패키지에 미리 구워
+  넣을 수 없음) 그대로 유지합니다 — Shaders/Dispatcher 샘플과 달리 이 단계 자체를 없앨 수는
+  없습니다.
+
 ## [0.3.0] - 2026-08-13
 
 - **(Breaking)** Runtime/Editor 네임스페이스를 패키지 및 경로 규칙에 맞춰
