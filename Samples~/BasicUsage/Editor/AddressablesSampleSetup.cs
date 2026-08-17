@@ -19,7 +19,7 @@ namespace Jeomseon.Samples.Addressables.Editor
         private const string MessageKey = "jeomseon-addressables-sample-message";
         private const string SampleLabel = "jeomseon-addressables-sample";
 
-        [MenuItem("Tool/Addressables/Setup Basic Usage Sample")]
+        [MenuItem("Jeomseon/Addressables/Setup Basic Usage Sample")]
         private static void Setup()
         {
             AddressableAssetSettings settings =
