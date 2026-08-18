@@ -2,6 +2,8 @@
 
 ## [Unreleased]
 
+- 직렬화 필드 리네이밍 전 이름을 사용해 진단·Catalog 정책을 실제로 활성화하지 못하던 PlayMode
+  테스트 JSON을 현재 필드명으로 수정하고 설정 적용 assertion을 추가했습니다.
 - `Basic Usage` 샘플의 `AddressablesSampleSetup` 메뉴 경로를 `AGENTS.md` 규칙(루트 `Jeomseon/`)에
   맞춰 `Tool/Addressables/Setup Basic Usage Sample` → `Jeomseon/Addressables/Setup Basic Usage
   Sample`로 수정했습니다. 이 Setup 메뉴는 Import된 Prefab/TextAsset을 **소비 프로젝트 자신의**

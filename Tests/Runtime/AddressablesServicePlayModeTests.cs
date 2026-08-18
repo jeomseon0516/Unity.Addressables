@@ -158,9 +158,11 @@ namespace Jeomseon.Tests
                 var configuration = ScriptableObject.CreateInstance<
                     Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
-                    "{\"_captureAllocationStackTrace\":true," +
-                    "\"_logOutstandingResourcesOnDispose\":false}",
+                    "{\"captureAllocationStackTrace\":true," +
+                    "\"logOutstandingResourcesOnDispose\":false}",
                     configuration);
+                Assert.That(configuration.CaptureAllocationStackTrace, Is.True);
+                Assert.That(configuration.LogOutstandingResourcesOnDispose, Is.False);
                 using var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
                 using var lease = await service.LoadAssetAsync<TextAsset>(MessageKey);
 
@@ -219,8 +221,9 @@ namespace Jeomseon.Tests
                 var configuration = ScriptableObject.CreateInstance<
                     Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
-                    "{\"_logOutstandingResourcesOnDispose\":false}",
+                    "{\"logOutstandingResourcesOnDispose\":false}",
                     configuration);
+                Assert.That(configuration.LogOutstandingResourcesOnDispose, Is.False);
                 var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
                 var lease = await service.LoadAssetAsync<TextAsset>(MessageKey);
 
@@ -266,9 +269,11 @@ namespace Jeomseon.Tests
                 var configuration = ScriptableObject.CreateInstance<
                     Jeomseon.Unity.Addressables.AddressablesConfiguration>();
                 JsonUtility.FromJsonOverwrite(
-                    "{\"_updateCatalogOnInitialize\":true," +
-                    "\"_cleanBundleCacheAfterCatalogUpdate\":true}",
+                    "{\"updateCatalogOnInitialize\":true," +
+                    "\"cleanBundleCacheAfterCatalogUpdate\":true}",
                     configuration);
+                Assert.That(configuration.UpdateCatalogOnInitialize, Is.True);
+                Assert.That(configuration.CleanBundleCacheAfterCatalogUpdate, Is.True);
                 using var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
 
                 await service.InitializeAsync();
