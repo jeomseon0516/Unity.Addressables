@@ -14,7 +14,7 @@ leases, and instance handles.
 Install from a Git URL through Unity Package Manager:
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.2.2
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
 ```
 
 ## Setup
