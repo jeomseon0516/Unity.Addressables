@@ -1,7 +1,9 @@
 # 변경 기록
 
-## [Unreleased]
+## [0.3.1] - 2026-09-01
 
+- Unity 최소 지원 버전을 `6000.5.7f1` → `6000.6.0f1`로 상향하고 한·영 README 요구 버전 문구를
+  동기화했습니다. 코드·API 변경은 없습니다.
 - 직렬화 필드 리네이밍 전 이름을 사용해 진단·Catalog 정책을 실제로 활성화하지 못하던 PlayMode
   테스트 JSON을 현재 필드명으로 수정하고 설정 적용 assertion을 추가했습니다.
 - `Basic Usage` 샘플의 `AddressablesSampleSetup` 메뉴 경로를 `AGENTS.md` 규칙(루트 `Jeomseon/`)에
@@ -31,8 +33,6 @@
 ## [0.1.1] - 2026-07-29
 
 - Addressable 프리팹 복제를 확인하는 `Basic Usage` 샘플을 추가했습니다.
-
-## [Unreleased]
 
 ## [0.2.2] - 2026-08-05
 

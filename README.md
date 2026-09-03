@@ -7,7 +7,7 @@ Handle로 소유권 경계를 표현합니다.
 
 ## 요구 사항
 
-- Unity 6000.5.7f1 이상
+- Unity 6000.6.0f1 이상
 - `com.unity.addressables` 2.9.1 이상
 - 패키지 ID: `com.jeomseon.unity.addressables`
 
@@ -16,7 +16,7 @@ Handle로 소유권 경계를 표현합니다.
 `Install package from git URL`에 다음 주소를 사용합니다.
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.2.2
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
 ```
 
 로컬 개발 프로젝트에서는 `Packages/manifest.json`에 저장소 경로를 연결할 수 있습니다.

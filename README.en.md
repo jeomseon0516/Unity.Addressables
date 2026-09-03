@@ -7,14 +7,14 @@ leases, and instance handles.
 
 ## Requirements
 
-- Unity 6000.5.7f1 or newer
+- Unity 6000.6.0f1 or newer
 - `com.unity.addressables` 2.9.1 or newer
 - Package ID: `com.jeomseon.unity.addressables`
 
 Install from a Git URL through Unity Package Manager:
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.2.2
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
 ```
 
 ## Setup
