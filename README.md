@@ -7,7 +7,7 @@ Handle로 소유권 경계를 표현합니다.
 
 ## 요구 사항
 
-- Unity 6000.5.7f1 이상
+- Unity 6000.6.0f1 이상
 - `com.unity.addressables` 2.9.1 이상
 - 패키지 ID: `com.jeomseon.unity.addressables`
 

@@ -7,7 +7,7 @@ leases, and instance handles.
 
 ## Requirements
 
-- Unity 6000.5.7f1 or newer
+- Unity 6000.6.0f1 or newer
 - `com.unity.addressables` 2.9.1 or newer
 - Package ID: `com.jeomseon.unity.addressables`
 
