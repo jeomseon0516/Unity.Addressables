@@ -11,9 +11,32 @@ Handle로 소유권 경계를 표현합니다.
 - `com.unity.addressables` 2.9.1 이상
 - 패키지 ID: `com.jeomseon.unity.addressables`
 
-`package.json`이 Unity Addressables 2.9.1을 의존성으로 선언하므로 UPM 설치 시 함께
-해결됩니다. Git URL로 설치할 때는 Unity Package Manager의
-`Install package from git URL`에 다음 주소를 사용합니다.
+`com.unity.addressables`는 `package.json`이 의존성으로 선언하므로 UPM 설치 시 함께 해결됩니다.
+
+## OpenUPM으로 설치
+
+프로젝트의 `Packages/manifest.json`에 OpenUPM scoped registry를 한 번 등록합니다.
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.jeomseon"
+      ]
+    }
+  ],
+  "dependencies": {
+    "com.jeomseon.unity.addressables": "0.3.1"
+  }
+}
+```
+
+## Git URL로 설치
+
+Unity Package Manager의 `Install package from git URL`에 다음 주소를 사용합니다.
 
 ```text
 https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
