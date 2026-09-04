@@ -11,7 +11,32 @@ leases, and instance handles.
 - `com.unity.addressables` 2.9.1 or newer
 - Package ID: `com.jeomseon.unity.addressables`
 
-Install from a Git URL through Unity Package Manager:
+`com.unity.addressables` is declared as a dependency in `package.json`, so UPM resolves it automatically.
+
+## Install via OpenUPM
+
+Register the OpenUPM scoped registry once in your project's `Packages/manifest.json`.
+
+```json
+{
+  "scopedRegistries": [
+    {
+      "name": "OpenUPM",
+      "url": "https://package.openupm.com",
+      "scopes": [
+        "com.jeomseon"
+      ]
+    }
+  ],
+  "dependencies": {
+    "com.jeomseon.unity.addressables": "0.3.1"
+  }
+}
+```
+
+## Install via Git URL
+
+Enter the following URL in Unity Package Manager's `Install package from git URL`.
 
 ```text
 https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
