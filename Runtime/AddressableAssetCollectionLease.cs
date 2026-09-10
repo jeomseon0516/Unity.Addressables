@@ -14,6 +14,7 @@ namespace Jeomseon.Unity.Addressables
     {
         private AsyncOperationHandle<IList<T>> _handle;
         private Action<IDisposable> _onReleased;
+        private Action<IDisposable> _onRetained;
 
         /// <summary>Gets the loaded assets. 로드된 Asset 목록을 가져옵니다.</summary>
         public IReadOnlyList<T> Assets { get; }
@@ -23,12 +24,38 @@ namespace Jeomseon.Unity.Addressables
 
         internal AddressableAssetCollectionLease(
             AsyncOperationHandle<IList<T>> handle,
-            Action<IDisposable> onReleased)
+            Action<IDisposable> onReleased,
+            Action<IDisposable> onRetained = null)
         {
             _handle = handle;
             _onReleased = onReleased;
+            _onRetained = onRetained;
             Assets = new List<T>(handle.Result);
             IsValid = true;
+        }
+
+        /// <summary>
+        /// Creates an independently owned lease for the same collection operation.
+        /// 같은 Collection Operation에 대한 독립 소유 Lease를 생성합니다.
+        /// </summary>
+        public AddressableAssetCollectionLease<T> Retain()
+        {
+            if (!IsValid)
+                throw new ObjectDisposedException(nameof(AddressableAssetCollectionLease<T>));
+
+            AsyncOperationHandle<IList<T>> retainedHandle =
+                AddressablesApi.ResourceManager.Acquire(_handle);
+            var retained = new AddressableAssetCollectionLease<T>(retainedHandle, _onReleased, _onRetained);
+            try
+            {
+                _onRetained?.Invoke(retained);
+                return retained;
+            }
+            catch
+            {
+                retained.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -41,6 +68,7 @@ namespace Jeomseon.Unity.Addressables
             IsValid = false;
             Action<IDisposable> callback = _onReleased;
             _onReleased = null;
+            _onRetained = null;
             if (_handle.IsValid()) AddressablesApi.Release(_handle);
             callback?.Invoke(this);
         }

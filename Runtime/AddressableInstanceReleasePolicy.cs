@@ -7,15 +7,25 @@ namespace Jeomseon.Unity.Addressables
     public enum AddressableInstanceReleasePolicy
     {
         /// <summary>
-        /// Requires the returned instance handle to be disposed explicitly.
-        /// 반환된 Instance Handle을 명시적으로 Dispose해야 합니다.
+        /// Gives lifetime responsibility to the returned handle. The handle may be registered with an
+        /// ownership host for automatic release.
+        /// 반환된 Handle에 수명 책임을 부여합니다. Ownership Host에 등록하면 자동 해제됩니다.
         /// </summary>
-        Explicit,
+        HandleLifetime = 0,
+
+        /// <summary>Legacy name for handle-owned lifetime. Handle 소유 수명의 이전 이름입니다.</summary>
+        [System.Obsolete(
+            "Use HandleLifetime. For automatic release, use [ManagedAsset] and its generated setter from " +
+            "com.jeomseon.unity.addressables.ownership.")]
+        Explicit = HandleLifetime,
 
         /// <summary>
         /// Also releases the operation when the instance is destroyed externally.
         /// 인스턴스가 외부에서 파괴될 때도 Operation을 해제합니다.
         /// </summary>
-        ReleaseOnDestroy
+        [System.Obsolete(
+            "ReleaseOnDestroy uses a legacy observer component. Use HandleLifetime with " +
+            "com.jeomseon.unity.addressables.ownership [ManagedAsset] for automatic owner-lifetime release.")]
+        ReleaseOnDestroy = 1
     }
 }

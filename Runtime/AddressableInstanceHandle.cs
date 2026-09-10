@@ -30,7 +30,9 @@ namespace Jeomseon.Unity.Addressables
             _onReleased = onReleased;
             Instance = handle.Result;
             IsValid = true;
-            if (releasePolicy != AddressableInstanceReleasePolicy.ReleaseOnDestroy) return;
+            // Numeric comparison keeps already-serialized legacy value 1 working without making new code
+            // reference the obsolete enum member.
+            if ((int)releasePolicy != 1) return;
             _observer = Instance.AddComponent<AddressableInstanceReleaseObserver>();
             _observer.Initialize(ReleaseAfterExternalDestroy);
         }

@@ -13,6 +13,7 @@ namespace Jeomseon.Unity.Addressables
     {
         private AsyncOperationHandle<T> _handle;
         private Action<IDisposable> _onReleased;
+        private Action<IDisposable> _onRetained;
 
         /// <summary>Gets the loaded asset. 로드된 Asset을 가져옵니다.</summary>
         public T Asset { get; }
@@ -22,12 +23,41 @@ namespace Jeomseon.Unity.Addressables
 
         internal AddressableAssetLease(
             AsyncOperationHandle<T> handle,
-            Action<IDisposable> onReleased)
+            Action<IDisposable> onReleased,
+            Action<IDisposable> onRetained = null)
         {
             _handle = handle;
             _onReleased = onReleased;
+            _onRetained = onRetained;
             Asset = handle.Result;
             IsValid = true;
+        }
+
+        /// <summary>
+        /// Creates an independently owned lease for the same loaded asset.
+        /// 같은 로드 Asset에 대한 독립 소유 Lease를 생성합니다.
+        /// </summary>
+        public AddressableAssetLease<T> Retain()
+        {
+            if (!IsValid)
+                throw new ObjectDisposedException(nameof(AddressableAssetLease<T>));
+
+            AsyncOperationHandle<T> retainedHandle =
+                AddressablesApi.ResourceManager.Acquire(_handle);
+            var retained = new AddressableAssetLease<T>(
+                retainedHandle,
+                _onReleased,
+                _onRetained);
+            try
+            {
+                _onRetained?.Invoke(retained);
+                return retained;
+            }
+            catch
+            {
+                retained.Dispose();
+                throw;
+            }
         }
 
         /// <summary>
@@ -40,6 +70,7 @@ namespace Jeomseon.Unity.Addressables
             IsValid = false;
             Action<IDisposable> callback = _onReleased;
             _onReleased = null;
+            _onRetained = null;
             if (_handle.IsValid()) AddressablesApi.Release(_handle);
             callback?.Invoke(this);
         }

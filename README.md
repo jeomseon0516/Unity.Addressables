@@ -192,6 +192,10 @@ AddressableAssetLease<Material> lease =
 Material, Sprite, Texture, AudioClip, TextAsset, ScriptableObject 등은
 `AddressableAssetLease<T>`로 소유합니다.
 
+현재 owner보다 오래 보관해야 할 때는 `lease.Retain()`으로 독립 Lease를 만든 뒤 그 Lease를
+새 owner가 Dispose합니다. `[ManagedAsset]` 사용 시에는 생성된 `Retain{Name}()`을 사용합니다.
+Collection Lease도 `Retain()`을 지원하며 `[ManagedAssetCollection]`에서 같은 방식으로 자동화됩니다.
+
 ```csharp
 private AddressableAssetLease<Material> _materialLease;
 
@@ -308,12 +312,15 @@ operation 해제를 함께 처리합니다.
 
 ### Prefab 해제 정책
 
-`AddressableInstanceReleasePolicy.Explicit`은 호출부가 반드시 InstanceHandle을 Dispose해야
-합니다. 외부에서 GameObject만 `Destroy`하면 operation은 자동 해제되지 않습니다.
+기본값인 `AddressableInstanceReleasePolicy.HandleLifetime`은 반환된 Handle에 수명 책임을 둡니다.
+저수준 API를 직접 사용하면 Handle을 Dispose해야 하지만,
+`com.jeomseon.unity.addressables.ownership`의 `[ManagedAsset]` 필드와 생성된 setter에 전달하면
+교체와 owner 파괴 시 자동 해제되므로 사용자 코드에서 Dispose할 필요가 없습니다.
 
-기본값인 `ReleaseOnDestroy`는 인스턴스에 내부 Observer를 추가합니다. 정상 Dispose뿐 아니라
+레거시 `ReleaseOnDestroy`는 인스턴스에 내부 Observer를 추가합니다. 정상 Dispose뿐 아니라
 외부 시스템이나 Scene 종료가 GameObject를 먼저 파괴해도 Observer가 남은 operation을 정확히
-한 번 해제합니다. 그래도 일반 호출부에서는 소유권이 명확한 `Dispose`를 우선 사용합니다.
+한 번 해제합니다. 기존 직렬화 설정 호환을 위해 동작은 유지하지만 새 코드에서는 `[Obsolete]`
+경고가 발생합니다. `Explicit`도 `HandleLifetime`의 레거시 이름입니다.
 
 ## 초기화와 Catalog 갱신
 
@@ -388,7 +395,7 @@ private void OnDestroy()
 
 Configuration을 생략하면 다음 기본값을 사용합니다.
 
-- Prefab 해제: `ReleaseOnDestroy`
+- Prefab 해제: `HandleLifetime` (`[ManagedAsset]` 경로에서는 owner 수명에 따라 자동 해제)
 - 초기 Catalog 갱신: 비활성
 - Catalog 갱신 시 미사용 Bundle cache 정리: 활성
 
@@ -474,7 +481,7 @@ Inspector에서도 즉시 오류를 표시합니다.
 
 - 로드된 에셋을 계속 사용하면서 지역 `using`으로 Lease를 즉시 Dispose
 - Prefab InstanceHandle을 보관하지 않고 GameObject만 전달
-- `Explicit` 정책에서 GameObject만 `Destroy`
+- 저수준 `HandleLifetime` 사용 중 Handle을 보관하지 않고 GameObject만 `Destroy`
 - 같은 에셋을 반복 로드하면서 이전 Lease를 먼저 해제하지 않음
 - Application 수명 Host를 자식 GameObject에 배치
 - 타입 제한 Reference 사용 asmdef에서 `Unity.Addressables` 참조 누락

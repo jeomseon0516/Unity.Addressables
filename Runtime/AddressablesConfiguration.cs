@@ -12,8 +12,8 @@ namespace Jeomseon.Unity.Addressables
         menuName = "Tool/Addressables/Configuration")]
     public sealed class AddressablesConfiguration : ScriptableObject
     {
-        [SerializeField, FormerlySerializedAs("_instanceReleasePolicy")] private AddressableInstanceReleasePolicy instanceReleasePolicy =
-            AddressableInstanceReleasePolicy.ReleaseOnDestroy;
+        [SerializeField, FormerlySerializedAs("_instanceReleasePolicy")]
+        private AddressableInstanceReleasePolicy instanceReleasePolicy = AddressableInstanceReleasePolicy.HandleLifetime;
         [SerializeField, FormerlySerializedAs("_updateCatalogOnInitialize")] private bool updateCatalogOnInitialize;
         [SerializeField, FormerlySerializedAs("_cleanBundleCacheAfterCatalogUpdate")] private bool cleanBundleCacheAfterCatalogUpdate = true;
         [SerializeField, FormerlySerializedAs("_logOutstandingResourcesOnDispose")] private bool logOutstandingResourcesOnDispose = true;

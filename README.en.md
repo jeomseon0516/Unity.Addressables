@@ -112,8 +112,10 @@ private async Awaitable LoadAsync(CancellationToken cancellationToken)
 }
 ```
 
-Clear consumers and dispose the lease when ownership ends. A local `using` is appropriate only
-when all use of the asset finishes inside that scope.
+Clear consumers and dispose the lease when ownership ends. A local `using` is appropriate only when all use of
+the asset finishes inside that scope. Call `lease.Retain()` to create an independently owned lease for a
+longer-lived owner. With `[ManagedAsset]`, use the generated `Retain{Name}()` method.
+Collection leases support the same `Retain()` contract and can be automated with `[ManagedAssetCollection]`.
 
 Load a serialized label into one collection lease:
 
@@ -142,9 +144,14 @@ Enemy enemy = handle.GetComponent<Enemy>();
 Call `handle.Dispose()` for normal removal. It uses `Addressables.ReleaseInstance` to destroy the
 GameObject and release its operation together.
 
-`Explicit` requires the owner to dispose the handle. The default `ReleaseOnDestroy` policy also
-attaches an internal observer so an external `Destroy` or scene shutdown releases the operation
-exactly once. Explicit disposal remains the preferred normal path.
+The default `HandleLifetime` policy places lifetime responsibility on the returned handle. Low-level callers
+dispose it directly. When the handle is assigned through a generated setter on a `[ManagedAsset]` field from
+`com.jeomseon.unity.addressables.ownership`, replacement and owner destruction release it automatically and
+user code does not call `Dispose()`.
+
+Legacy `ReleaseOnDestroy` attaches an observer component so external `Destroy` releases the operation. Its
+serialized value remains supported, but new source references receive an `[Obsolete]` warning. `Explicit` is
+also retained as an obsolete alias for `HandleLifetime`.
 
 ## Initialization, catalogs, and cancellation
 
