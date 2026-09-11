@@ -151,6 +151,32 @@ namespace Jeomseon.Tests
         }
 
         [UnityTest]
+        public IEnumerator Retain_CreatesIndependentlyTrackedLease()
+        {
+            async Awaitable TestImplementation()
+            {
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService();
+                var original = await service.LoadAssetAsync<TextAsset>(MessageKey);
+                var retained = original.Retain();
+
+                Assert.That(retained, Is.Not.SameAs(original));
+                Assert.That(retained.Asset, Is.SameAs(original.Asset));
+                Assert.That(service.ActiveResourceCount, Is.EqualTo(2));
+
+                original.Dispose();
+                Assert.That(retained.IsValid, Is.True);
+                Assert.That(retained.Asset, Is.Not.Null);
+                Assert.That(service.ActiveResourceCount, Is.EqualTo(1));
+
+                retained.Dispose();
+                Assert.That(service.ActiveResourceCount, Is.Zero);
+                Assert.Throws<ObjectDisposedException>(() => retained.Retain());
+            }
+
+            return TestImplementation();
+        }
+
+        [UnityTest]
         public IEnumerator LoadAssetAsync_CapturesAllocationStackWhenConfigured()
         {
             async Awaitable TestImplementation()
@@ -195,11 +221,38 @@ namespace Jeomseon.Tests
         }
 
         [UnityTest]
-        public IEnumerator InstantiateAsync_ExternalDestroyReleasesOwnership()
+        public IEnumerator CollectionRetain_CreatesIndependentlyTrackedLease()
         {
             async Awaitable TestImplementation()
             {
                 using var service = new Jeomseon.Unity.Addressables.AddressablesService();
+                var original = await service.LoadAssetsAsync<TextAsset>(MessageKey);
+                var retained = original.Retain();
+
+                Assert.That(retained.Assets, Is.EqualTo(original.Assets));
+                Assert.That(service.ActiveResourceCount, Is.EqualTo(2));
+                original.Dispose();
+                Assert.That(retained.IsValid, Is.True);
+                Assert.That(service.ActiveResourceCount, Is.EqualTo(1));
+                retained.Dispose();
+                Assert.That(service.ActiveResourceCount, Is.Zero);
+                Assert.Throws<ObjectDisposedException>(() => retained.Retain());
+            }
+
+            return TestImplementation();
+        }
+
+        [UnityTest]
+        public IEnumerator InstantiateAsync_ExternalDestroyReleasesOwnership()
+        {
+            async Awaitable TestImplementation()
+            {
+                var configuration = ScriptableObject.CreateInstance<
+                    Jeomseon.Unity.Addressables.AddressablesConfiguration>();
+                // Serialized value 1 verifies compatibility with the legacy ReleaseOnDestroy policy
+                // without introducing a new source reference to the obsolete enum member.
+                JsonUtility.FromJsonOverwrite("{\"instanceReleasePolicy\":1}", configuration);
+                using var service = new Jeomseon.Unity.Addressables.AddressablesService(configuration);
                 var handle = await service.InstantiateAsync(PrefabKey);
                 Assert.That(service.ActiveResourceCount, Is.EqualTo(1));
 
@@ -208,6 +261,7 @@ namespace Jeomseon.Tests
 
                 Assert.That(handle.IsValid, Is.False);
                 Assert.That(service.ActiveResourceCount, Is.Zero);
+                UnityEngine.Object.DestroyImmediate(configuration);
             }
 
             return TestImplementation();

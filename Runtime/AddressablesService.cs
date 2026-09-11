@@ -52,7 +52,7 @@ namespace Jeomseon.Unity.Addressables
         {
             _instanceReleasePolicy = configuration != null
                 ? configuration.InstanceReleasePolicy
-                : AddressableInstanceReleasePolicy.ReleaseOnDestroy;
+                : AddressableInstanceReleasePolicy.HandleLifetime;
             _updateCatalogOnInitialize = configuration != null &&
                 configuration.UpdateCatalogOnInitialize;
             _cleanBundleCacheAfterCatalogUpdate = configuration == null ||
@@ -100,7 +100,10 @@ namespace Jeomseon.Unity.Addressables
                 await handle.Task;
                 cancellationToken.ThrowIfCancellationRequested();
                 EnsureSucceeded(handle, key);
-                var lease = new AddressableAssetCollectionLease<T>(handle, RemoveResource);
+                var lease = new AddressableAssetCollectionLease<T>(
+                    handle,
+                    RemoveResource,
+                    retained => TrackRetainedCollection(retained, key, typeof(T)));
                 TrackResource(
                     lease,
                     AddressableResourceKind.AssetCollection,
@@ -143,7 +146,10 @@ namespace Jeomseon.Unity.Addressables
                 await handle.Task;
                 cancellationToken.ThrowIfCancellationRequested();
                 EnsureSucceeded(handle, key);
-                var lease = new AddressableAssetLease<T>(handle, RemoveResource);
+                var lease = new AddressableAssetLease<T>(
+                    handle,
+                    RemoveResource,
+                    retained => TrackRetainedAsset(retained, key, typeof(T)));
                 TrackResource(lease, AddressableResourceKind.Asset, key, typeof(T));
                 return lease;
             }
@@ -266,6 +272,24 @@ namespace Jeomseon.Unity.Addressables
         }
 
         private void RemoveResource(IDisposable resource) => _resources.Remove(resource);
+
+        private void TrackRetainedAsset(
+            IDisposable resource,
+            object key,
+            Type resourceType)
+        {
+            ThrowIfDisposed();
+            TrackResource(resource, AddressableResourceKind.Asset, key, resourceType);
+        }
+
+        private void TrackRetainedCollection(
+            IDisposable resource,
+            object key,
+            Type resourceType)
+        {
+            ThrowIfDisposed();
+            TrackResource(resource, AddressableResourceKind.AssetCollection, key, resourceType);
+        }
 
         private void TrackResource(
             IDisposable resource,

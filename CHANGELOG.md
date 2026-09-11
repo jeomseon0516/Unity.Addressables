@@ -1,5 +1,20 @@
 # 변경 기록
 
+## [0.4.0] - Unreleased
+
+- **동작 변경**: 새 `AddressablesConfiguration`과 configuration 없이 만든 `AddressablesService`의
+  Prefab 해제 기본값을 `HandleLifetime`으로 변경했습니다. Ownership 경로에서는 생성 setter와
+  `OwnershipLifetimeHost`가 자동 해제하므로 사용자 `Dispose()`가 필요하지 않습니다.
+- 기존 `Explicit` 이름은 의미가 불명확해 레거시 별칭으로 남기고 `[Obsolete]` 처리했습니다.
+- `AddressableInstanceReleasePolicy.ReleaseOnDestroy`를 레거시 API로 표시하고 `[Obsolete]` 경고를
+  추가했습니다. 기존 직렬화 값 1은 계속 Observer 컴포넌트 방식을 사용해 호환됩니다.
+- 새 코드는 `com.jeomseon.unity.addressables.ownership`의 `[ManagedAsset]`과 생성 setter를 사용해
+  owner 수명에 handle을 연결하는 방식을 권장합니다.
+- `AddressableAssetLease<T>.Retain()`으로 같은 에셋의 Addressables 참조 카운트를 독립적으로
+  소유하는 새 Lease를 만들 수 있습니다.
+- `AddressableAssetCollectionLease<T>.Retain()`도 같은 collection operation의 독립 소유권과
+  Service 진단 추적을 제공합니다.
+
 ## [0.3.1] - 2026-09-01
 
 - Unity 최소 지원 버전을 `6000.5.7f1` → `6000.6.0f1`로 상향하고 한·영 README 요구 버전 문구를
