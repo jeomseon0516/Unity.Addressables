@@ -1,21 +1,45 @@
 # Jeomseon Unity Addressables
 
-Unity Addressables 위에 직렬화 설정, 명시적인 에셋 소유권과 Prefab 인스턴스 수명 관리를
-제공합니다. Unity의 로드·참조 카운팅 기능을 다시 구현하지 않고, 호출부가
-`AsyncOperationHandle`을 직접 관리하지 않도록 `IAddressablesService`, Lease와 Instance
-Handle로 소유권 경계를 표현합니다.
+한국어 | [English](README.en.md)
+
+Unity Addressables 위에 서비스 수명, 리소스 추적, asset Lease와 prefab InstanceHandle의 해제 계약을 제공합니다.
+
+## 빠르게 시작하기
+
+Host 또는 직접 생성한 Service → Load/Instantiate → Lease/Handle을 보관하며 사용 → Dispose. Host 종료는 Service의 남은 리소스도 정리합니다.
+
+설정된 Host 또는 조합 루트의 Service를 전달합니다. 이 메서드는 Lease를 해제하기 전에 문자열을 복사해 반환합니다.
+
+```csharp
+using System.Threading;
+using Jeomseon.Unity.Addressables;
+using UnityEngine;
+
+public static class AddressablesExample
+{
+    public static async Awaitable<string> ReadMessageAsync(
+        IAddressablesService service, string key, CancellationToken token)
+    {
+        using AddressableAssetLease<TextAsset> lease =
+            await service.LoadAssetAsync<TextAsset>(key, token);
+        return lease.Asset.text;
+    }
+}
+```
+
+## 계약과 주의사항
+
+취소가 실제 I/O를 즉시 멈추지는 않습니다. Retain도 원래 Service의 종료를 넘어서지 않습니다. 자동 owner 수명은 별도 Addressables Ownership 패키지로 연결합니다.
 
 ## 요구 사항
 
-- Unity 6000.6.0f1 이상
-- `com.unity.addressables` 2.9.1 이상
-- 패키지 ID: `com.jeomseon.unity.addressables`
+- Unity `6000.6.0f1`
+- 패키지: `com.jeomseon.unity.addressables` `0.4.0`
+- `com.unity.addressables`: `2.9.1`
 
-`com.unity.addressables`는 `package.json`이 의존성으로 선언하므로 UPM 설치 시 함께 해결됩니다.
+## 설치
 
-## OpenUPM으로 설치
-
-프로젝트의 `Packages/manifest.json`에 OpenUPM scoped registry를 한 번 등록합니다.
+프로젝트 `Packages/manifest.json`의 기존 dependencies와 registry를 유지하면서 다음 항목을 병합합니다.
 
 ```json
 {
@@ -29,33 +53,98 @@ Handle로 소유권 경계를 표현합니다.
     }
   ],
   "dependencies": {
-    "com.jeomseon.unity.addressables": "0.3.1"
+    "com.jeomseon.unity.addressables": "0.4.0"
   }
 }
 ```
 
-## Git URL로 설치
-
-Unity Package Manager의 `Install package from git URL`에 다음 주소를 사용합니다.
+또는 Package Manager의 **Install package from git URL**을 사용합니다:
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.4.0
 ```
 
-로컬 개발 프로젝트에서는 `Packages/manifest.json`에 저장소 경로를 연결할 수 있습니다.
+## 설계와 동작
 
-```json
-{
-  "dependencies": {
-    "com.jeomseon.unity.addressables": "file:../../Jeomseon.Unity.Addressables"
-  },
-  "testables": [
-    "com.jeomseon.unity.addressables"
-  ]
-}
+### 해결하는 문제
+
+Unity Addressables는 로드·참조 카운트·인스턴스 생성을 제공합니다. 이 패키지는 한 서비스가 소유한
+리소스 추적, 초기 Catalog 정책, asset와 instance의 다른 해제 방법, 취소 뒤 정리를 일관되게 만듭니다.
+Bundle 제작·배포 서버·원격 콘텐츠 빌드 파이프라인은 제공하지 않습니다.
+
+| 타입 | 책임 | 보관할 값 |
+| --- | --- | --- |
+| `AddressablesConfiguration` | 직렬화 정책 | 실행 중 handle을 소유하지 않음 |
+| `AddressablesHost` | Unity 객체 수명과 Service 연결 | Scene/Application 수명에 맞는 Host |
+| `IAddressablesService` | 로드와 생성의 소비 계약 | 프로젝트 Provider가 의존할 인터페이스 |
+| `AddressablesService` | 초기화와 미해제 리소스 추적 | 자체 생성 시 직접 Dispose |
+| `AddressableAssetLease<T>` | 에셋 operation 하나의 해제 책임 | Asset을 사용하는 동안 Lease 유지 |
+| `AddressableAssetCollectionLease<T>` | collection operation의 해제 책임 | 항목마다 개별 Release하지 않음 |
+| `AddressableInstanceHandle` | 생성 인스턴스와 operation | Dispose가 ReleaseInstance 수행 |
+
+### 획득부터 종료까지
+
+```mermaid
+flowchart LR
+    Config[Configuration] --> Host[Host 또는 Composition Root]
+    Host --> Service[Service]
+    Provider[프로젝트 Provider] --> Service
+    Service --> Init[공유 초기화]
+    Init --> Operation[Unity Addressables operation]
+    Operation --> Lease[Lease 또는 InstanceHandle]
+    Lease --> Release[Dispose]
+    Service --> Cleanup[종료 시 남은 리소스 정리]
 ```
 
-## 제공 범위
+1. Host의 Service 또는 직접 생성한 Service를 획득합니다.
+2. key나 직렬화 AssetReference로 요청합니다. Load/Instantiate는 초기화를 자동 보장합니다.
+3. 성공한 Lease/Handle을 보관하고 그 값으로 Renderer·UI·게임 시스템을 구성합니다.
+4. 사용처의 참조를 제거하고 소유 Lease/Handle을 Dispose합니다.
+5. Host/Service 종료 시 남아 있는 리소스를 정리하고, 설정에 따라 미해제 진단을 기록합니다.
+
+Service 종료는 해당 Service가 추적하는 retained Lease도 해제합니다. `Retain`은 원본 Lease와
+독립적인 해제 책임을 만들지만 Service보다 긴 수명을 보장하지 않습니다.
+
+### 취소·실패·초기화
+
+취소는 진행 중인 Unity operation을 즉시 중단하는 계약이 아닙니다. 구현은 operation 완료 뒤
+토큰을 검사하고, 취소·실패 시 획득 handle을 정리하고 예외를 전달합니다.
+따라서 `destroyCancellationToken`을 전달하더라도 실제 I/O가 즉시 멈춘다고 가정하면 안 됩니다.
+
+초기화는 같은 Service 안에서 공유됩니다. 한 호출자의 취소가 공유 초기화 자체를 취소하지 않습니다.
+초기화 실패 뒤에는 다시 시도할 수 있습니다. Catalog 갱신은 최초 사용 단계에서만 수행하며,
+리소스를 보유한 상태에서 임의로 Catalog를 바꾸는 공개 API는 없습니다.
+부분 실패 collection의 결과를 성공 Lease로 반환한다고 가정하지 마세요. operation 상태 실패는 예외입니다.
+
+Configuration 기본값은 instance `HandleLifetime`, 초기 Catalog 갱신 꺼짐,
+Catalog 갱신 후 미참조 cache 정리 켬, 종료 시 미해제 진단 켬, allocation stack capture 꺼짐입니다.
+빈 key와 잘못된 Reference는 거부하고 Dispose한 Service는 재사용할 수 없습니다.
+
+### 자동 해제와 저수준 해제 구분
+
+기본 instance 정책은 Handle 수명입니다. 저수준 호출부가 Handle을 직접 소유하면 Dispose해야 합니다.
+별도 Addressables Ownership 패키지의 `[ManagedAsset]`와 생성 setter를 쓰면 교체·owner 파괴가
+해제를 자동 수행합니다. 두 방식을 하나의 리소스에 중복 적용하지 마세요.
+
+레거시 `ReleaseOnDestroy`는 인스턴스 Observer의 파괴 이벤트로 남은 operation을 정리하며
+Obsolete입니다. Sprite·Material처럼 같은 파괴 이벤트를 사용할 수 없는 일반 에셋의 자동 수명은
+owner에 연결된 생성 경로가 담당합니다. `Explicit`은 `HandleLifetime`의 레거시 이름입니다.
+
+### 실행과 코드 탐색
+
+[Basic Usage](Samples~/BasicUsage)의 Setup 메뉴로 소비 프로젝트의 Addressables 설정에
+샘플 에셋을 등록한 뒤 Scene에서 Prefab 생성·해제와 TextAsset load·해제를 확인합니다.
+[AddressablesSample](Samples~/BasicUsage/AddressablesSample.cs)에서 실제 호출과 예외 처리를 볼 수 있습니다.
+
+[Service](Runtime/AddressablesService.cs) → [asset Lease](Runtime/AddressableAssetLease.cs) →
+[instance Handle](Runtime/AddressableInstanceHandle.cs) 순으로 읽습니다.
+[PlayMode 테스트](Tests/Runtime)는 실제 로드, 취소, retain, 외부 Destroy 정책의 회귀 사례입니다.
+패키지를 consumer manifest의 `testables`에 등록해 실행합니다. 이전 테스트 실행 기록과 새 실행 결과는
+구분하고, 정상 설치 확인만으로 모든 비동기 경로의 통과를 주장하지 않습니다.
+
+## API 사용과 상세 설명
+
+### 제공 범위
 
 - `AddressablesConfiguration`: 직렬화 가능한 초기화·Prefab 해제 정책
 - `AddressablesHost`: Scene 또는 Application 수명으로 Service를 소유하는 Component
@@ -73,9 +162,9 @@ Scene 로드, 다운로드 크기 조회, 의존성 선다운로드, Catalog를 
 API는 현재 공개 범위에 포함하지 않습니다. 필요한 경우 Unity 공식 Addressables API를 직접
 사용하거나 차후 별도 기능으로 확장합니다.
 
-## 기본 구성
+### 기본 구성
 
-### 1. Configuration 생성
+#### 1. Configuration 생성
 
 Unity 메뉴에서 다음 자산을 생성합니다.
 
@@ -96,7 +185,7 @@ Assets/Create/Tool/Addressables/Configuration
 Configuration은 설정만 보관하며 runtime handle이나 로드된 에셋을 소유하지 않습니다.
 여러 Host 또는 Service가 같은 Configuration을 공유할 수 있습니다.
 
-### 2. Host 배치
+#### 2. Host 배치
 
 Scene의 GameObject에 `AddressablesHost`를 추가하고 Configuration을 연결합니다.
 
@@ -124,9 +213,9 @@ Host가 파괴되면 Service를 Dispose하고, Service가 아직 소유한 모�
 해제합니다. Scene 전용 Host는 Scene 수명, `Dont Destroy On Load` Host는 Application 수명에
 적합합니다.
 
-## 입력 방식 선택
+### 입력 방식 선택
 
-### 동적 Key
+#### 동적 Key
 
 서버 응답, 런타임 테이블 또는 DLC처럼 주소가 실행 중 결정되면 `object key` API를 사용합니다.
 
@@ -140,7 +229,7 @@ AddressableAssetLease<Material> lease =
 문자열 외에도 Unity Addressables가 Key로 해석할 수 있는 객체를 전달할 수 있습니다. `null`과
 빈 문자열은 호출 전에 거부됩니다.
 
-### 직렬화 AssetReference
+#### 직렬화 AssetReference
 
 프로젝트에 미리 존재하는 정적 에셋은 주소 문자열보다 Inspector에 직렬화한 타입 제한
 Reference를 권장합니다.
@@ -187,7 +276,7 @@ AddressableAssetLease<Material> lease =
 타입 제한 Reference API를 호출하는 asmdef는 `Unity.Addressables`를 직접 참조해야 합니다.
 동적 Key API만 사용하는 소비 asmdef에는 이 추가 참조가 필요하지 않습니다.
 
-## 일반 에셋 하나 로드
+### 일반 에셋 하나 로드
 
 Material, Sprite, Texture, AudioClip, TextAsset, ScriptableObject 등은
 `AddressableAssetLease<T>`로 소유합니다.
@@ -232,7 +321,7 @@ ParseImmediately(lease.Asset.text);
 Lease의 `Dispose`는 operation을 정확히 한 번 해제합니다. 중복 Dispose는 안전하지만,
 Dispose 이후 `IsValid`는 `false`이며 해당 Lease가 에셋 수명을 더 이상 보장하지 않습니다.
 
-## Label 또는 Key로 여러 에셋 로드
+### Label 또는 Key로 여러 에셋 로드
 
 여러 에셋은 `AddressableAssetCollectionLease<T>` 하나로 함께 소유합니다.
 
@@ -270,7 +359,7 @@ AddressableAssetCollectionLease<Sprite> lease =
 Collection Lease를 Dispose하면 컬렉션 operation과 그 operation이 소유한 참조를 함께
 해제합니다. 개별 `Assets` 항목마다 별도로 Release하지 않습니다.
 
-## Prefab 인스턴스 생성
+### Prefab 인스턴스 생성
 
 동적 Key로 생성합니다.
 
@@ -310,7 +399,7 @@ handle = null;
 Dispose는 내부적으로 `Addressables.ReleaseInstance`를 호출하여 GameObject 파괴와 Addressables
 operation 해제를 함께 처리합니다.
 
-### Prefab 해제 정책
+#### Prefab 해제 정책
 
 기본값인 `AddressableInstanceReleasePolicy.HandleLifetime`은 반환된 Handle에 수명 책임을 둡니다.
 저수준 API를 직접 사용하면 Handle을 Dispose해야 하지만,
@@ -322,7 +411,7 @@ operation 해제를 함께 처리합니다.
 한 번 해제합니다. 기존 직렬화 설정 호환을 위해 동작은 유지하지만 새 코드에서는 `[Obsolete]`
 경고가 발생합니다. `Explicit`도 `HandleLifetime`의 레거시 이름입니다.
 
-## 초기화와 Catalog 갱신
+### 초기화와 Catalog 갱신
 
 `Initialize On Start`가 활성화된 Host는 `Start`에서 초기화합니다. 직접 초기화할 수도 있습니다.
 
@@ -344,7 +433,7 @@ Configuration의 `Update Catalog On Initialize`가 활성화되면 첫 에셋 �
 Catalog 갱신은 Service가 아직 리소스를 소유하지 않은 초기 단계에서만 수행됩니다. 실행 중
 임의 시점의 Catalog 갱신 API는 현재 공개하지 않습니다.
 
-## 취소와 예외 처리
+### 취소와 예외 처리
 
 MonoBehaviour에서는 `destroyCancellationToken`을 전달하는 것이 가장 간단합니다.
 
@@ -373,7 +462,7 @@ operation 완료 뒤 취소가 확인되면 패키지가 생성된 handle을 즉
 잘못된 Key, 유효하지 않은 Reference, 실패한 Addressables operation, Dispose된 Service 사용은
 예외로 보고됩니다. `async void` 호출부에서는 반드시 예외를 처리합니다.
 
-## Service 수명과 직접 생성
+### Service 수명과 직접 생성
 
 Inspector 구성이 필요 없으면 Host 없이 Service를 직접 만들 수 있습니다.
 
@@ -403,7 +492,7 @@ Configuration을 생략하면 다음 기본값을 사용합니다.
 Service를 Dispose하면 현재 등록된 모든 Asset Lease, Collection Lease와 InstanceHandle을
 해제하며 이후 재사용할 수 없습니다.
 
-## Provider를 통한 권장 사용
+### Provider를 통한 권장 사용
 
 작은 프로토타입은 Host와 Lease를 직접 사용해도 되지만, 완성된 게임 로직에는 도메인별
 Provider를 두는 것을 권장합니다.
@@ -444,7 +533,7 @@ public interface IEnemyContentProvider
 ScriptableObject에 직렬화하고, `AddressablesSampleContentProvider`가 실제 Lease와
 InstanceHandle을 내부에서 소유하는 예제를 제공합니다.
 
-## 진단
+### 진단
 
 Service가 현재 소유한 리소스 수를 확인할 수 있습니다.
 
@@ -477,7 +566,7 @@ Key·타입·경과 시간·할당 StackTrace를 표시합니다. `Capture Alloc
 비용이 있으므로 문제를 추적할 때만 활성화하는 것을 권장합니다. 영속 Host가 Root가 아니면
 Inspector에서도 즉시 오류를 표시합니다.
 
-## 흔한 실수
+### 흔한 실수
 
 - 로드된 에셋을 계속 사용하면서 지역 `using`으로 Lease를 즉시 Dispose
 - Prefab InstanceHandle을 보관하지 않고 GameObject만 전달
@@ -488,13 +577,13 @@ Inspector에서도 즉시 오류를 표시합니다.
 - Service를 직접 생성하고 Dispose하지 않음
 - `async void`에서 취소와 로드 실패 예외를 처리하지 않음
 
-## 공식 Addressables와의 경계
+### 공식 Addressables와의 경계
 
 에셋 로드, Prefab 생성, Label 조회, 참조 카운팅, Catalog 갱신과 Bundle cache 처리는 Unity
 공식 Addressables API를 사용합니다. 이 패키지는 Configuration, Service 소유권, Lease와
 외부 Destroy 안전성만 추가합니다.
 
-## Basic Usage 샘플
+### Basic Usage 샘플
 
 1. Package Manager에서 `Basic Usage` 샘플을 Import합니다.
 2. `Tool/Addressables/Setup Basic Usage Sample`을 실행합니다.
@@ -513,7 +602,7 @@ Inspector에서도 즉시 오류를 표시합니다.
 - 여러 Prefab Instance를 동시에 소유하고 개별·전체 해제하는 Provider
 - AddressablesHost Inspector의 Runtime Resource 진단
 
-## API 선택표
+### API 선택표
 
 | 입력과 대상 | API | 반환 소유권 |
 | --- | --- | --- |
@@ -524,11 +613,24 @@ Inspector에서도 즉시 오류를 표시합니다.
 | 동적 Key의 Prefab | `InstantiateAsync` | `AddressableInstanceHandle` |
 | 직렬화 Prefab Reference | `InstantiateReferenceAsync` | `AddressableInstanceHandle` |
 
+## 샘플 실행
+
+**Package Manager > Samples**에서 예제를 Import합니다. 포함된 Scene 또는 Editor 도구를 열고 필요한 Setup 메뉴를 먼저 실행합니다.
+
+- [Basic Usage](Samples~/BasicUsage/README.md)
+  - [AddressablesBasicUsage](Samples~/BasicUsage/Scenes/AddressablesBasicUsage.unity)
+
 ## 테스트
 
-패키지를 `testables`에 등록한 뒤 Unity Test Runner의 PlayMode에서
-`Jeomseon.Unity.Addressables.PlayModeTests`를 실행합니다.
+[테스트 코드](Tests)
+
+manifest의 `testables`에 패키지 ID를 추가하고 Unity Test Runner의 관련 EditMode/PlayMode 어셈블리를 실행합니다.
+
+## 추가 문서
+
+[전체 코드 지도와 패키지 구성](Documentation~/Overview.md)
+- [Changelog](CHANGELOG.md)
 
 ## 라이선스
 
-[MIT License](./LICENSE.md)
+[License](LICENSE.md)
