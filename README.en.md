@@ -4,6 +4,10 @@
 
 Adds service lifetimes, resource tracking, asset Leases, and prefab InstanceHandle release contracts to Unity Addressables.
 
+![Resource ownership across a service lifetime](Documentation~/Images/usage-flow.svg)
+
+Keep the Lease/Handle for the entire usage period. Retain splits release responsibility but does not extend the Service lifetime.
+
 ## Quick start
 
 Use a Host or directly constructed Service, Load/Instantiate, keep the Lease/Handle during use, then Dispose. Host shutdown cleans up the Service's remaining resources.
@@ -191,6 +195,7 @@ private AddressableAssetLease<Material> _materialLease;
 
 private async Awaitable LoadAsync(CancellationToken cancellationToken)
 {
+    renderer.sharedMaterial = null;
     _materialLease?.Dispose();
     _materialLease = await service.LoadAssetReferenceAsync<Material>(
         _material,
@@ -203,6 +208,10 @@ Clear consumers and dispose the lease when ownership ends. A local `using` is ap
 the asset finishes inside that scope. Call `lease.Retain()` to create an independently owned lease for a
 longer-lived owner. With `[ManagedAsset]`, use the generated `Retain{Name}()` method.
 Collection leases support the same `Retain()` contract and can be automated with `[ManagedAssetCollection]`.
+
+`Dispose` is idempotent. After disposal, `IsValid` is false and that Lease no longer keeps the asset alive.
+Clear references from Renderers/UI before releasing their Lease. Serialize replacement requests at the
+calling boundary; the snippets assume one request at a time and show method bodies inside a component.
 
 Load a serialized label into one collection lease:
 
@@ -256,6 +265,20 @@ A cancellation token does not forcibly abort Unity's underlying Addressables dow
 operation completes, the service observes cancellation, releases the resulting handle, and throws
 `OperationCanceledException`, so canceled results never remain owned by the service.
 
+Invalid keys, invalid references, failed operations, and use of a disposed Service are reported as
+exceptions. Handle cancellation separately from load failures in `async void` Unity entry points.
+
+### Direct service ownership
+
+Create `new AddressablesService(configuration)` when an Inspector Host is unnecessary. The composition
+root that creates it must keep and Dispose it. `Initialize On Start` on a Host prewarms initialization;
+loads still ensure initialization automatically when this option is disabled.
+
+Disposing the Service releases its tracked asset Leases, collection Leases, retained Leases, and instance
+Handles. A disposed Service cannot be reused. Never keep only an `Asset` reference after releasing its
+Lease, release collection items individually, or use both manual release and generated ownership for the
+same operation.
+
 ### Diagnostics
 
 ```csharp
@@ -283,6 +306,10 @@ configuration, owns leases and instance handles, and returns domain objects.
 
 The `Basic Usage` sample demonstrates:
 
+[`AddressablesSampleAssets`](Samples~/BasicUsage/AddressablesSampleAssets.cs) stores the typed
+references. [`AddressablesSampleContentProvider`](Samples~/BasicUsage/AddressablesSampleContentProvider.cs)
+keeps the Leases/Handles, reuses the TextAsset Lease, and exposes domain operations to the sample caller.
+
 - a ScriptableObject containing typed prefab and TextAsset references;
 - a provider that owns multiple prefab handles and a shared TextAsset lease;
 - individual release, release-all, and external-destroy cleanup;
@@ -309,9 +336,18 @@ the ownership model.
 ### Basic Usage sample
 
 Import `Basic Usage` from Package Manager, run
-`Tool/Addressables/Setup Basic Usage Sample`, and open
+`Jeomseon/Addressables/Setup Basic Usage Sample`, and open
 `Scenes/AddressablesBasicUsage`. The scene verifies serialized references, multiple provider-owned
-instances, explicit release, external-destroy protection, a TextAsset lease, and live diagnostics.
+instances, explicit release, a TextAsset lease, and live diagnostics. The included configuration retains
+legacy `ReleaseOnDestroy` (serialized value 1) to demonstrate external-destroy cleanup. Newly created
+configurations default to `HandleLifetime`; use Addressables Ownership for new owner-bound automation.
+
+## Verify the behavior
+
+1. Import Basic Usage, run the Setup menu described in its README, and open the Scene.
+2. In Play Mode, exercise Prefab instantiate/release and TextAsset load/release separately. Check both success logs and visible state.
+3. For retained Leases, distinguish continued use after releasing the original from invalidation at Service shutdown.
+4. For automatic owner-bound release, use the ManagedAsset sample in Addressables Ownership. Do not separately Release the same operation.
 
 ## Samples
 

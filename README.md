@@ -4,6 +4,10 @@
 
 Unity Addressables 위에 서비스 수명, 리소스 추적, asset Lease와 prefab InstanceHandle의 해제 계약을 제공합니다.
 
+![Resource ownership across a service lifetime](Documentation~/Images/usage-flow.svg)
+
+Lease/Handle을 보관하는 기간이 사용 기간입니다. Retain은 해제 책임을 나누지만 Service보다 긴 수명을 만들지는 않습니다.
+
 ## 빠르게 시작하기
 
 Host 또는 직접 생성한 Service → Load/Instantiate → Lease/Handle을 보관하며 사용 → Dispose. Host 종료는 Service의 남은 리소스도 정리합니다.
@@ -290,6 +294,7 @@ private AddressableAssetLease<Material> _materialLease;
 
 private async Awaitable LoadMaterialAsync(CancellationToken cancellationToken)
 {
+    renderer.sharedMaterial = null;
     _materialLease?.Dispose();
     _materialLease = await service.LoadAssetReferenceAsync<Material>(
         _material,
@@ -305,6 +310,9 @@ private void ReleaseMaterial()
     _materialLease = null;
 }
 ```
+
+위 메서드 예제는 하나의 Component 내부에서 요청을 순차 실행하는 전제입니다. 교체 요청이
+겹칠 수 있으면 호출부에서 직렬화하거나 최신 요청만 반영하는 정책을 정합니다.
 
 `Asset`을 사용하는 동안 Lease를 유지해야 합니다. 메서드가 끝난 뒤에도 Renderer, UI 또는
 게임 시스템이 에셋을 사용한다면 Lease를 필드나 Provider에 보관합니다.
@@ -586,15 +594,19 @@ Inspector에서도 즉시 오류를 표시합니다.
 ### Basic Usage 샘플
 
 1. Package Manager에서 `Basic Usage` 샘플을 Import합니다.
-2. `Tool/Addressables/Setup Basic Usage Sample`을 실행합니다.
+2. `Jeomseon/Addressables/Setup Basic Usage Sample`을 실행합니다.
 3. `Scenes/AddressablesBasicUsage` Scene을 엽니다.
 4. Play Mode에 진입합니다.
+
+이 샘플 Configuration은 외부 파괴 회귀 확인을 위해 레거시 `ReleaseOnDestroy`(직렬화 값 1)를 유지합니다.
+새 Configuration의 기본값은 `HandleLifetime`입니다. 새 owner 자동 해제 경로에는
+Addressables Ownership의 `[ManagedAsset]`를 사용합니다.
 
 샘플에서 다음 동작을 확인할 수 있습니다.
 
 - 직렬화된 Prefab Reference로 생성
 - InstanceHandle을 통한 정상 해제
-- 외부 `Destroy` 시 operation 자동 해제
+- 샘플의 레거시 `ReleaseOnDestroy` 설정에서 외부 `Destroy` 시 operation 자동 해제
 - 직렬화된 TextAsset Reference와 Lease
 - ScriptableObject Asset Configuration
 - Lease를 내부 소유하는 도메인 Provider
@@ -612,6 +624,13 @@ Inspector에서도 즉시 오류를 표시합니다.
 | 직렬화 Label의 여러 에셋 | `LoadLabelAssetsAsync<T>` | `AddressableAssetCollectionLease<T>` |
 | 동적 Key의 Prefab | `InstantiateAsync` | `AddressableInstanceHandle` |
 | 직렬화 Prefab Reference | `InstantiateReferenceAsync` | `AddressableInstanceHandle` |
+
+## 동작 확인
+
+1. Basic Usage를 Import한 뒤 샘플 README의 Setup 메뉴를 실행하고 Scene을 엽니다.
+2. Play에서 Prefab 생성/해제와 TextAsset 로드/해제를 각각 실행합니다. 성공 로그와 화면 상태를 함께 확인합니다.
+3. retained Lease를 쓰는 경우 원본만 해제했을 때의 사용과 Service 종료 후 무효화를 구분합니다.
+4. 자동 owner 해제가 필요하면 Addressables Ownership의 ManagedAsset 샘플을 사용합니다. 동일 operation에 별도 Release를 중복 호출하지 않습니다.
 
 ## 샘플 실행
 
