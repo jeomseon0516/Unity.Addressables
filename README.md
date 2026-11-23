@@ -38,7 +38,7 @@ public static class AddressablesExample
 ## 요구 사항
 
 - Unity `6000.6.0f1`
-- 패키지: `com.jeomseon.unity.addressables` `0.4.0`
+- 패키지: `com.jeomseon.unity.addressables` `0.4.1`
 - `com.unity.addressables`: `2.9.1`
 
 ## 설치
@@ -57,7 +57,7 @@ public static class AddressablesExample
     }
   ],
   "dependencies": {
-    "com.jeomseon.unity.addressables": "0.4.0"
+    "com.jeomseon.unity.addressables": "0.4.1"
   }
 }
 ```
@@ -65,7 +65,7 @@ public static class AddressablesExample
 또는 Package Manager의 **Install package from git URL**을 사용합니다:
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.4.0
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.4.1
 ```
 
 ## 설계와 동작
