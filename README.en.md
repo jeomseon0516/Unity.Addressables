@@ -29,7 +29,7 @@ Register the OpenUPM scoped registry once in your project's `Packages/manifest.j
     }
   ],
   "dependencies": {
-    "com.jeomseon.unity.addressables": "0.3.1"
+    "com.jeomseon.unity.addressables": "0.4.1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Register the OpenUPM scoped registry once in your project's `Packages/manifest.j
 Enter the following URL in Unity Package Manager's `Install package from git URL`.
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.4.1
 ```
 
 ## Setup
@@ -222,7 +222,7 @@ the ownership model.
 ## Basic Usage sample
 
 Import `Basic Usage` from Package Manager, run
-`Tool/Addressables/Setup Basic Usage Sample`, and open
+`Jeomseon/Addressables/Setup Basic Usage Sample`, and open
 `Scenes/AddressablesBasicUsage`. The scene verifies serialized references, multiple provider-owned
 instances, explicit release, external-destroy protection, a TextAsset lease, and live diagnostics.
 

@@ -29,7 +29,7 @@ Handle로 소유권 경계를 표현합니다.
     }
   ],
   "dependencies": {
-    "com.jeomseon.unity.addressables": "0.3.1"
+    "com.jeomseon.unity.addressables": "0.4.1"
   }
 }
 ```
@@ -39,7 +39,7 @@ Handle로 소유권 경계를 표현합니다.
 Unity Package Manager의 `Install package from git URL`에 다음 주소를 사용합니다.
 
 ```text
-https://github.com/jeomseon0516/Unity.Addressables.git#v0.3.1
+https://github.com/jeomseon0516/Unity.Addressables.git#v0.4.1
 ```
 
 로컬 개발 프로젝트에서는 `Packages/manifest.json`에 저장소 경로를 연결할 수 있습니다.
@@ -497,7 +497,7 @@ Inspector에서도 즉시 오류를 표시합니다.
 ## Basic Usage 샘플
 
 1. Package Manager에서 `Basic Usage` 샘플을 Import합니다.
-2. `Tool/Addressables/Setup Basic Usage Sample`을 실행합니다.
+2. `Jeomseon/Addressables/Setup Basic Usage Sample`을 실행합니다.
 3. `Scenes/AddressablesBasicUsage` Scene을 엽니다.
 4. Play Mode에 진입합니다.
 
