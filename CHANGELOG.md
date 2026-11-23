@@ -1,5 +1,9 @@
 # 변경 기록
 
+## [0.4.1] - 2026-11-23
+
+- Addressables 호스트의 상태와 핸들 통계를 표시하는 UI Toolkit 인스펙터를 추가했습니다.
+
 ## [0.4.0] - Unreleased
 
 - **동작 변경**: 새 `AddressablesConfiguration`과 configuration 없이 만든 `AddressablesService`의
